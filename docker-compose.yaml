@@ -1,0 +1,49 @@
+version: "3.8"
+services:
+  # PHP service
+  app:
+    build: ./docker/php/.
+    container_name: app-php
+    working_dir: /home/alex/PhpStormProjects/cellar/back
+    environment:
+      APP_ENV: dev
+      APP_DEBUG: 1
+      PHP_DATE_TIMEZONE: ${PHP_DATE_TIMEZONE:-UTC}
+      XDEBUG_CONFIG: remote_host=docker.cellar.localhost
+      PHP_IDE_CONFIG: serverName=localhost
+    volumes:
+      - ./back:/home/alex/PhpStormProjects/cellar/back
+    networks:
+      - app-network
+
+  # Nginx service
+  nginx:
+    image: nginx:alpine
+    container_name: app-nginx
+    working_dir: /home/alex/PhpStormProjects/cellar/back
+    ports:
+      - 8001:80
+    volumes:
+      - ./back:/home/alex/PhpStormProjects/cellar/back
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - app-network
+
+  # Postgres service
+  postgres:
+    image: postgres:14-alpine
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: cellar_db
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - ./postgresql:/var/lib/postgresql
+    ports:
+      - "5400:5432"
+
+networks:
+  app-network:
+    driver: bridge

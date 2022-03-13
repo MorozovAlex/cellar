@@ -1,0 +1,40 @@
+FROM composer:2.2 AS composer
+FROM php:8.0.0-fpm
+
+RUN apt-get update && apt-get install -y \
+        postgresql \
+        curl \
+        wget \
+        git \
+        libfreetype6-dev \
+        libjpeg62-turbo-dev \
+        libmcrypt-dev \
+        libpng-dev \
+        libzip-dev \
+        libpq-dev \
+        libxml2-dev\
+        libxslt-dev\
+        zip \
+    && docker-php-ext-install zip
+
+COPY --from=composer:2.0.9 /usr/bin/composer /usr/bin/composer
+
+RUN docker-php-ext-install \
+    pdo \
+    pdo_pgsql \
+    opcache \
+    intl \
+    zip \
+    dom \
+#     mbstring \
+    gd \
+    xsl \
+    bcmath \
+    sockets
+
+RUN pecl install apcu \
+    xdebug \
+    && docker-php-ext-enable apcu \
+    xdebug
+
+WORKDIR /var/www
