@@ -1,8 +1,9 @@
 version: "3.8"
 services:
   # PHP service
-  app:
+  php:
     build: ./docker/php/.
+    network_mode: bridge
     container_name: app-php
     working_dir: /home/alex/PhpStormProjects/cellar/back
     environment:
@@ -13,12 +14,17 @@ services:
       PHP_IDE_CONFIG: serverName=localhost
     volumes:
       - ./back:/home/alex/PhpStormProjects/cellar/back
-    networks:
-      - app-network
+#    networks:
+#      - app-network
+    depends_on:
+      - postgres
+    links:
+      - postgres
 
   # Nginx service
   nginx:
     image: nginx:alpine
+    network_mode: bridge
     container_name: app-nginx
     working_dir: /home/alex/PhpStormProjects/cellar/back
     ports:
@@ -26,12 +32,17 @@ services:
     volumes:
       - ./back:/home/alex/PhpStormProjects/cellar/back
       - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
-    networks:
-      - app-network
+#    networks:
+#      - app-network
+    depends_on:
+      - php
+    links:
+      - php
 
   # Postgres service
   postgres:
     image: postgres:14-alpine
+    network_mode: bridge
     container_name: postgres
     restart: always
     environment:
@@ -44,6 +55,6 @@ services:
     ports:
       - "5400:5432"
 
-networks:
-  app-network:
-    driver: bridge
+#networks:
+#  app-network:
+#    driver: bridge

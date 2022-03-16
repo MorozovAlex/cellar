@@ -1,7 +1,4 @@
 <?php
-/**
- * @autor Aleksey Morozov
- */
 
 namespace App\Entity;
 
@@ -21,7 +18,7 @@ class ShopItem
     #[Id, Column(type: "integer"), GeneratedValue(strategy: "IDENTITY")]
     private int|null $id = null;
 
-    #[Column(type: "string", length: 32)]
+    #[Column(type: "string", length: 255)]
     private string $price;
 
     #[Column(type: "string", length: 255)]
